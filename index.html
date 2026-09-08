@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Personal expense tracker with categories, budgets, and spending charts." />
+  <title>Expense Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">₦</span>
+        <div>
+          <strong>Expense Tracker</strong>
+          <p>Personal spending overview</p>
+        </div>
+      </div>
+      <div class="month-picker">
+        <button type="button" class="icon-btn" id="prev-month" aria-label="Previous month">‹</button>
+        <label class="sr-only" for="month-input">Month</label>
+        <input type="month" id="month-input" />
+        <button type="button" class="icon-btn" id="next-month" aria-label="Next month">›</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="container layout">
+    <section class="summary-grid" aria-label="Monthly summary">
+      <article class="summary-card">
+        <p class="label">Total spent</p>
+        <p class="value" id="total-spent">₦0</p>
+      </article>
+      <article class="summary-card">
+        <p class="label">Monthly budget</p>
+        <p class="value" id="budget-value">₦0</p>
+      </article>
+      <article class="summary-card">
+        <p class="label">Remaining</p>
+        <p class="value" id="remaining-value">₦0</p>
+      </article>
+      <article class="summary-card">
+        <p class="label">Top category</p>
+        <p class="value value-sm" id="top-category">—</p>
+      </article>
+    </section>
+
+    <section class="panel budget-panel">
+      <div class="panel-head">
+        <h2>Budget</h2>
+        <p class="muted">Set a monthly spending limit for the selected month.</p>
+      </div>
+      <form class="budget-form" id="budget-form">
+        <label for="budget-input">Budget amount (₦)</label>
+        <div class="inline-form">
+          <input id="budget-input" type="number" min="0" step="100" placeholder="e.g. 150000" required />
+          <button type="submit" class="btn btn-primary">Save budget</button>
+        </div>
+      </form>
+      <div class="budget-bar" aria-hidden="true">
+        <div class="budget-bar-fill" id="budget-bar-fill"></div>
+      </div>
+      <p class="muted" id="budget-note">No budget set for this month.</p>
+    </section>
+
+    <div class="content-grid">
+      <section class="panel">
+        <div class="panel-head row-between">
+          <div>
+            <h2 id="form-title">Add expense</h2>
+            <p class="muted">Track amount, category, date, and an optional note.</p>
+          </div>
+          <button type="button" class="btn btn-ghost" id="cancel-edit" hidden>Cancel edit</button>
+        </div>
+        <form id="expense-form" novalidate>
+          <div class="form-grid">
+            <div class="field">
+              <label for="amount">Amount (₦)</label>
+              <input id="amount" name="amount" type="number" min="1" step="1" required placeholder="2500" />
+              <span class="field-error" data-for="amount"></span>
+            </div>
+            <div class="field">
+              <label for="category">Category</label>
+              <select id="category" name="category" required></select>
+              <span class="field-error" data-for="category"></span>
+            </div>
+            <div class="field">
+              <label for="date">Date</label>
+              <input id="date" name="date" type="date" required />
+              <span class="field-error" data-for="date"></span>
+            </div>
+            <div class="field field-span">
+              <label for="note">Note</label>
+              <input id="note" name="note" type="text" maxlength="120" placeholder="Optional note" />
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" id="submit-expense">Add expense</button>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Spending by category</h2>
+          <p class="muted">Bars reflect totals for the selected month.</p>
+        </div>
+        <div class="chart" id="category-chart" role="img" aria-label="Spending by category chart"></div>
+        <p class="empty-state" id="chart-empty" hidden>No expenses this month yet.</p>
+      </section>
+    </div>
+
+    <section class="panel">
+      <div class="panel-head row-between">
+        <div>
+          <h2>Expenses</h2>
+          <p class="muted" id="expense-count">0 entries</p>
+        </div>
+        <div class="filters">
+          <label class="sr-only" for="filter-category">Filter by category</label>
+          <select id="filter-category">
+            <option value="all">All categories</option>
+          </select>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="expense-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Category</th>
+              <th>Note</th>
+              <th class="num">Amount</th>
+              <th class="actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="expense-tbody"></tbody>
+        </table>
+      </div>
+      <p class="empty-state" id="table-empty" hidden>No expenses match this filter.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>Expense Tracker · HTML, CSS &amp; JavaScript · Data stored in your browser</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
