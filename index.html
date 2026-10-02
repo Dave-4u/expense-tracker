@@ -3,11 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Personal expense tracker with categories, budgets, and spending charts." />
-  <title>Expense Tracker</title>
+  <meta name="description" content="A friendly Naira expense tracker: log spending, set a monthly budget, and see where your money went. Everything stays in your browser." />
+  <meta name="theme-color" content="#0b5d43" />
+  <title>Kobo · Expense Tracker</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -15,142 +17,156 @@
 
   <header class="topbar">
     <div class="container topbar-inner">
-      <div class="brand">
+      <a class="brand" href="#" aria-label="Kobo expense tracker home">
         <span class="brand-mark" aria-hidden="true">₦</span>
-        <div>
-          <strong>Expense Tracker</strong>
-          <p>Personal spending overview</p>
-        </div>
-      </div>
-      <div class="month-picker">
-        <button type="button" class="icon-btn" id="prev-month" aria-label="Previous month">‹</button>
+        <span class="brand-text"><strong>Kobo</strong><small>expense tracker</small></span>
+      </a>
+      <div class="month-picker" role="group" aria-label="Choose month">
+        <button type="button" class="icon-btn" id="prev-month" aria-label="Previous month" title="Previous month (←)">‹</button>
         <label class="sr-only" for="month-input">Month</label>
         <input type="month" id="month-input" />
-        <button type="button" class="icon-btn" id="next-month" aria-label="Next month">›</button>
+        <button type="button" class="icon-btn" id="next-month" aria-label="Next month" title="Next month (→)">›</button>
       </div>
     </div>
   </header>
 
   <main id="main" class="container layout">
+    <section class="hero-card" aria-labelledby="headline">
+      <div class="hero-copy">
+        <p class="eyebrow" id="month-label">This month</p>
+        <h1 id="headline" class="headline">Let's see where the money went.</h1>
+        <p class="subline" id="subline">Add your first expense below and I'll keep the running total for you.</p>
+      </div>
+      <div class="budget-meter" aria-hidden="true">
+        <svg viewBox="0 0 120 120" class="ring">
+          <circle cx="60" cy="60" r="50" class="ring-track" />
+          <circle cx="60" cy="60" r="50" class="ring-fill" id="ring-fill" />
+        </svg>
+        <div class="ring-label"><strong id="ring-pct">0%</strong><span>of budget</span></div>
+      </div>
+    </section>
+
     <section class="summary-grid" aria-label="Monthly summary">
-      <article class="summary-card">
-        <p class="label">Total spent</p>
+      <article class="stat">
+        <p class="label">Spent</p>
         <p class="value" id="total-spent">₦0</p>
       </article>
-      <article class="summary-card">
-        <p class="label">Monthly budget</p>
+      <article class="stat">
+        <p class="label">Budget</p>
         <p class="value" id="budget-value">₦0</p>
       </article>
-      <article class="summary-card">
-        <p class="label">Remaining</p>
+      <article class="stat">
+        <p class="label">Left</p>
         <p class="value" id="remaining-value">₦0</p>
       </article>
-      <article class="summary-card">
-        <p class="label">Top category</p>
+      <article class="stat">
+        <p class="label">Biggest bucket</p>
         <p class="value value-sm" id="top-category">—</p>
       </article>
     </section>
 
-    <section class="panel budget-panel">
-      <div class="panel-head">
-        <h2>Budget</h2>
-        <p class="muted">Set a monthly spending limit for the selected month.</p>
-      </div>
-      <form class="budget-form" id="budget-form">
-        <label for="budget-input">Budget amount (₦)</label>
-        <div class="inline-form">
-          <input id="budget-input" type="number" min="0" step="100" placeholder="e.g. 150000" required />
-          <button type="submit" class="btn btn-primary">Save budget</button>
-        </div>
-      </form>
-      <div class="budget-bar" aria-hidden="true">
-        <div class="budget-bar-fill" id="budget-bar-fill"></div>
-      </div>
-      <p class="muted" id="budget-note">No budget set for this month.</p>
-    </section>
-
     <div class="content-grid">
-      <section class="panel">
+      <section class="panel panel-form" aria-labelledby="form-title">
         <div class="panel-head row-between">
           <div>
             <h2 id="form-title">Add expense</h2>
-            <p class="muted">Track amount, category, date, and an optional note.</p>
+            <p class="muted">Press <kbd>N</kbd> anytime to jump here.</p>
           </div>
-          <button type="button" class="btn btn-ghost" id="cancel-edit" hidden>Cancel edit</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="cancel-edit" hidden>Cancel edit</button>
         </div>
         <form id="expense-form" novalidate>
+          <div class="amount-field">
+            <label for="amount">How much?</label>
+            <div class="amount-input">
+              <span aria-hidden="true">₦</span>
+              <input id="amount" name="amount" type="number" inputmode="decimal" min="1" step="1" required placeholder="2,500" />
+            </div>
+            <span class="field-error" data-for="amount" role="alert"></span>
+          </div>
+
+          <fieldset class="field">
+            <legend>On what?</legend>
+            <div class="cat-chips" id="cat-chips" role="radiogroup" aria-label="Category"></div>
+            <select id="category" name="category" class="sr-only" tabindex="-1" aria-hidden="true"></select>
+            <span class="field-error" data-for="category" role="alert"></span>
+          </fieldset>
+
           <div class="form-grid">
             <div class="field">
-              <label for="amount">Amount (₦)</label>
-              <input id="amount" name="amount" type="number" min="1" step="1" required placeholder="2500" />
-              <span class="field-error" data-for="amount"></span>
-            </div>
-            <div class="field">
-              <label for="category">Category</label>
-              <select id="category" name="category" required></select>
-              <span class="field-error" data-for="category"></span>
-            </div>
-            <div class="field">
-              <label for="date">Date</label>
+              <label for="date">When?</label>
               <input id="date" name="date" type="date" required />
-              <span class="field-error" data-for="date"></span>
+              <span class="field-error" data-for="date" role="alert"></span>
             </div>
-            <div class="field field-span">
-              <label for="note">Note</label>
-              <input id="note" name="note" type="text" maxlength="120" placeholder="Optional note" />
+            <div class="field">
+              <label for="note">Note <span class="optional">optional</span></label>
+              <input id="note" name="note" type="text" maxlength="120" placeholder="e.g. Suya with Tobi" />
             </div>
           </div>
-          <button type="submit" class="btn btn-primary" id="submit-expense">Add expense</button>
+          <button type="submit" class="btn btn-primary btn-block" id="submit-expense">Add expense</button>
+        </form>
+
+        <form class="budget-form" id="budget-form">
+          <label for="budget-input">Monthly budget</label>
+          <div class="inline-form">
+            <div class="amount-input amount-input-sm">
+              <span aria-hidden="true">₦</span>
+              <input id="budget-input" type="number" min="0" step="100" placeholder="150,000" />
+            </div>
+            <button type="submit" class="btn btn-ghost btn-sm">Save</button>
+          </div>
+          <p class="muted small" id="budget-note">No budget set for this month.</p>
         </form>
       </section>
 
-      <section class="panel">
+      <section class="panel" aria-labelledby="chart-title">
         <div class="panel-head">
-          <h2>Spending by category</h2>
-          <p class="muted">Bars reflect totals for the selected month.</p>
+          <h2 id="chart-title">Where it went</h2>
+          <p class="muted">Tap a bar to filter the list below.</p>
         </div>
-        <div class="chart" id="category-chart" role="img" aria-label="Spending by category chart"></div>
-        <p class="empty-state" id="chart-empty" hidden>No expenses this month yet.</p>
+        <div class="chart" id="category-chart" role="list" aria-label="Spending by category"></div>
+        <div class="empty-state" id="chart-empty" hidden>
+          <div class="empty-art" aria-hidden="true">
+            <svg viewBox="0 0 64 64"><rect x="10" y="14" width="44" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="3"/><path d="M10 24h44M20 34h14M20 42h22" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+          </div>
+          <p><strong>Nothing spent this month.</strong><br />Either you're very disciplined, or it's the 1st. Add something to see the breakdown.</p>
+        </div>
       </section>
     </div>
 
-    <section class="panel">
-      <div class="panel-head row-between">
+    <section class="panel" aria-labelledby="list-title">
+      <div class="panel-head row-between wrap">
         <div>
-          <h2>Expenses</h2>
+          <h2 id="list-title">Receipts</h2>
           <p class="muted" id="expense-count">0 entries</p>
         </div>
         <div class="filters">
+          <label class="sr-only" for="search">Search notes</label>
+          <input type="search" id="search" placeholder="Search notes…  /" />
           <label class="sr-only" for="filter-category">Filter by category</label>
-          <select id="filter-category">
-            <option value="all">All categories</option>
-          </select>
+          <select id="filter-category"><option value="all">All categories</option></select>
+          <button type="button" class="btn btn-ghost btn-sm" id="export-csv" title="Download this month as CSV">Export CSV</button>
         </div>
       </div>
-      <div class="table-wrap">
-        <table class="expense-table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Category</th>
-              <th>Note</th>
-              <th class="num">Amount</th>
-              <th class="actions">Actions</th>
-            </tr>
-          </thead>
-          <tbody id="expense-tbody"></tbody>
-        </table>
+      <ul class="receipt-list" id="expense-tbody" aria-live="polite"></ul>
+      <div class="empty-state" id="table-empty" hidden>
+        <p><strong>No receipts match.</strong> Try another category or clear the search.</p>
       </div>
-      <p class="empty-state" id="table-empty" hidden>No expenses match this filter.</p>
+      <div class="list-foot">
+        <button type="button" class="link-btn" id="reset-demo">Clear everything and start fresh</button>
+      </div>
     </section>
   </main>
 
   <footer class="site-footer">
-    <div class="container">
-      <p>Expense Tracker · HTML, CSS &amp; JavaScript · Data stored in your browser</p>
+    <div class="container footer-inner">
+      <p>Kobo keeps everything in this browser. No accounts, no servers, no wahala.</p>
+      <p class="shortcuts"><kbd>N</kbd> new · <kbd>/</kbd> search · <kbd>←</kbd><kbd>→</kbd> month · <kbd>Esc</kbd> cancel</p>
     </div>
   </footer>
 
+  <div class="toast" id="toast" role="status" aria-live="polite"><span id="toast-msg"></span><button type="button" id="toast-action" hidden>Undo</button></div>
+
+  <script src="lib.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
